@@ -1,6 +1,8 @@
 #include <cstddef>
 #include <cstdio>
+#include <iostream>
 #include <raylib.h>
+#include <system_error>
 
 
 const int SCREEN_WIDTH = 350;
@@ -61,12 +63,15 @@ Font btn_font;
 
 int main()
 {
-    SetConfigFlags(FLAG_WINDOW_TRANSPARENT | FLAG_WINDOW_RESIZABLE);
+    #if defined(RELEASE_BUILD)
+        ChangeDirectory(GetApplicationDirectory());
+    #endif
+    SetConfigFlags(FLAG_WINDOW_TRANSPARENT | FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_TOPMOST);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "ctimer");
     SetTargetFPS(60);
     number_font = LoadFontEx("assets/font/Pacifico-Regular.ttf", number_font_size, NULL, 0);
     SetTextureFilter(number_font.texture, TEXTURE_FILTER_BILINEAR);
-    btn_font = LoadFontEx("assets/font/PatrickHand-Regular.ttf", btn_font_size, NULL, 0);
+    btn_font = LoadFontEx("assets/font/PermanentMarker-Regular.ttf", btn_font_size, NULL, 0);
     SetTextureFilter(btn_font.texture, TEXTURE_FILTER_BILINEAR);
 
 

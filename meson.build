@@ -16,4 +16,9 @@ spdlog = dependency('spdlog')
 incls = [ incl ]
 deps = [ raylib, spdlog ]
 
-executable('ctimer', src, include_directories: incls, dependencies: deps)
+extra_args = []
+if get_option('buildtype') == 'release'
+    extra_args += [ '-DRELEASE_BUILD' ]
+endif
+
+executable('ctimer', src, cpp_args: extra_args, include_directories: incls, dependencies: deps)

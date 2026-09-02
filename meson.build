@@ -7,7 +7,8 @@ third_dep_dir_ab = meson.current_source_dir()/third_dep_dir
 incl = include_directories('include')
 
 src = files(
-    'src/main.cpp'
+    'src/main.cpp',
+    'src/config.cpp',
 )
 
 raylib = dependency('raylib')

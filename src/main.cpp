@@ -1,12 +1,10 @@
 #include <cstddef>
 #include <cstdio>
-#include <iostream>
 #include <raylib.h>
-#include <system_error>
+#include <string>
+#include <unordered_map>
+#include "config.h"
 
-
-const int SCREEN_WIDTH = 350;
-const int SCREEN_HEIGHT = 200;
 
 void TransferString(double time, char* buf, size_t buf_size);
 bool DrawButton(Rectangle rect, const char* text, Color base_color = Color{25, 26, 27, 128}, Color hover_color = Color{44, 45, 46, 255});
@@ -51,23 +49,36 @@ struct AppShow
     }
 };
 
+struct AppConfig
+{
+    int width;
+    int height;
+};
+
 void HandleResize(AppShow& show);
+void InitConfig(const std::string& config_path, AppConfig& config);
 
 AppState state;
 AppShow show;
+AppConfig config;
 
 const float number_font_size = 100;
 Font number_font;
 const float btn_font_size = 30;
 Font btn_font;
 
+
 int main()
 {
+
     #if defined(RELEASE_BUILD)
         ChangeDirectory(GetApplicationDirectory());
     #endif
+
+    InitConfig("config", config);
+    
     SetConfigFlags(FLAG_WINDOW_TRANSPARENT | FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_TOPMOST);
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "ctimer");
+    InitWindow(config.width, config.height, "ctimer");
     SetTargetFPS(60);
     number_font = LoadFontEx("assets/font/Pacifico-Regular.ttf", number_font_size, NULL, 0);
     SetTextureFilter(number_font.texture, TEXTURE_FILTER_BILINEAR);
@@ -209,6 +220,41 @@ void HandleResize(AppShow& show)
         btn_width,
         btn_height
     };
+}
+
+template<typename T>
+T get_or(const std::unordered_map<std::string, std::string> map, const std::string& key, T default_value)
+{
+    auto it = map.find(key);
+    if(it == map.end()) 
+        return default_value;
+
+    try {
+        if constexpr (std::is_same_v<T, int>) {
+            return std::stoi(it->second);
+        } else if constexpr (std::is_same_v<T, double>) {
+            return std::stod(it->second);
+        } else if constexpr (std::is_same_v<T, float>) {
+            return std::stof(it->second);
+        } else if constexpr (std::is_same_v<T, std::string>) {
+            return it->second;
+        } else if constexpr (std::is_same_v<T, bool>) {
+            return (it->second == "true" || it->second == "1");
+        }
+    } catch (...) {
+        // 解析异常，回退到默认值
+        return default_value;
+    }
+    return default_value;
+}
+
+void InitConfig(const std::string& config_path, AppConfig& config)
+{
+    const std::string KEY_SCREEN_WIDTH = "width";
+    const std::string KEY_SCREEN_HEIGHT = "height";
 
 
+    auto configs = Config::LoadConfig(config_path);
+    config.width = get_or<int>(configs, KEY_SCREEN_WIDTH, 300);
+    config.height = get_or<int>(configs, KEY_SCREEN_HEIGHT, 170);
 }

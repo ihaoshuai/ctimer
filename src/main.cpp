@@ -79,6 +79,12 @@ int main()
     
     SetConfigFlags(FLAG_WINDOW_TRANSPARENT | FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_TOPMOST);
     InitWindow(config.width, config.height, "ctimer");
+
+    Image icon = LoadImage("icon.PNG");
+    ImageResize(&icon, 64, 64);
+    SetWindowIcon(icon);
+    UnloadImage(icon);
+
     SetTargetFPS(60);
     number_font = LoadFontEx("assets/font/Pacifico-Regular.ttf", number_font_size, NULL, 0);
     SetTextureFilter(number_font.texture, TEXTURE_FILTER_BILINEAR);
